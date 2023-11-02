@@ -5,12 +5,11 @@ import {
   signInSuccess,
   signInFailure,
 } from "../redux/user/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -23,8 +22,9 @@ function SignIn() {
 
     try {
       dispatch(signInStart());
-      setLoading(true);
-      setError(false);
+      // setLoading(true);
+      // setError(false);
+
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         body: JSON.stringify(formData),
@@ -32,13 +32,14 @@ function SignIn() {
       });
       const data = await res.json(res);
 
-      dispatch(signInSuccess(data));
-      if (!data) {
-        dispatch(signInFailure());
+      if (data["success"] === false) {
+        dispatch(signInFailure(data.message));
         return;
       }
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
+      console.log("error", error);
       dispatch(signInFailure(error));
     }
   };
@@ -74,7 +75,9 @@ function SignIn() {
           <span className="text-blue-500">Sign Up</span>
         </Link>
       </div>
-      <p className="text-red-700 mt-5">{error && "Someting went wrong"}</p>
+      <p className="text-red-700 mt-5">
+        {error ? error || "Someting went wrong" : ""}
+      </p>
     </div>
   );
 }
