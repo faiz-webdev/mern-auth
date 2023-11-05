@@ -1,0 +1,2 @@
+MONGO=mongodb://localhost:27017/mern-auth
+JWT_SECRET=mern-auth
